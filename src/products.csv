@@ -1,0 +1,10 @@
+categoría,nombre,descripción,precio,stock,fecha_ultima_venta
+,Camisetas,,,,
+Camisetas,Manga corta,Blablabla...,9.99,5,2020-06-05 11:53:00
+Camisetas,Manga larga,Blablabla...,15.99,4,2020-05-20 12:00:25
+Camisetas,Top,Blablabla...,12,9,2020-04-21 10:15:13
+,Faldas,,,,
+Faldas,Vaquera,Blablabla...,30.95,10,2020-06-05 20:01:34
+Faldas,Midi,Blablabla...,23,10,2020-05-12 14:30:12
+,Pantalones,,,,
+Pantalones,Jeans,Blablabla...,45,9,2020-06-05 09:53:30
