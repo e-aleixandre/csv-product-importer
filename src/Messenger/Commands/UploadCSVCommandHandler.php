@@ -3,14 +3,14 @@
 namespace App\Messenger\Commands;
 
 use App\Entity\File;
-use App\Messenger\Commands\ParseFileMessage;
+use App\Messenger\Commands\ParseFileCommand;
 use Doctrine\ORM\EntityManager;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
 use Symfony\Component\Messenger\Handler\MessageHandlerInterface;
 use Symfony\Component\Messenger\MessageBusInterface;
 
-class UploadCSVHandler implements MessageHandlerInterface
+class UploadCSVCommandHandler implements MessageHandlerInterface
 {
     private MessageBusInterface $bus;
     private ParameterBagInterface $parameterBag;
@@ -27,7 +27,7 @@ class UploadCSVHandler implements MessageHandlerInterface
         $this->entityManager = $entityManager;
     }
 
-    public function __invoke(UploadCSV $command)
+    public function __invoke(UploadCSVCommand $command)
     {
         $newFile = $command->file()->move(
             $this->parameterBag->get('uploads_directory'),
@@ -41,6 +41,6 @@ class UploadCSVHandler implements MessageHandlerInterface
         $this->entityManager->persist($file);
         $this->entityManager->flush();
 
-        $this->bus->dispatch(new ParseFileMessage($file->getId()));
+        $this->bus->dispatch(new ParseFileCommand($file->getId()));
     }
 }

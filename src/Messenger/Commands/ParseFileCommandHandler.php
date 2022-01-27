@@ -10,17 +10,16 @@ use Symfony\Component\HttpFoundation\File\Exception\FileException;
 use Symfony\Component\Messenger\Exception\UnrecoverableMessageHandlingException;
 use Symfony\Component\Messenger\Handler\MessageHandlerInterface;
 
-class ParseFileMessageHandler implements MessageHandlerInterface
+class ParseFileCommandHandler implements MessageHandlerInterface
 {
     private EntityManagerInterface $entityManager;
-    private array $categories = [];
 
     public function __construct(EntityManagerInterface $entityManager)
     {
         $this->entityManager = $entityManager;
     }
 
-    public function __invoke(ParseFileMessage $message)
+    public function __invoke(ParseFileCommand $message)
     {
         $file = $this->entityManager->find(File::class, $message->getFileId());
 
@@ -38,18 +37,20 @@ class ParseFileMessageHandler implements MessageHandlerInterface
 
         fgets($fileStream);
 
+        $category = null;
+
         while (!feof($fileStream))
         {
             $line = explode(',', fgets($fileStream));
 
             if (empty($line[0]))
             {
-                $this->createCategory($line[1], $file);
+                $category = $this->createCategoryIfDoesNotExist($line[1]);
 
                 continue;
             }
 
-            $this->createProduct($line);
+            $this->createProduct($line, $category);
         }
 
         fclose($fileStream);
@@ -61,17 +62,20 @@ class ParseFileMessageHandler implements MessageHandlerInterface
         unlink($file->getPath());
     }
 
-    private function createCategory(string $name, File $file): void
+    private function createCategoryIfDoesNotExist(string $name): Category
     {
-        $category = new Category($name);
-        $category->setFile($file);
+        $category = $this->entityManager->getRepository(Category::class)->findOneBy(['name' => $name]);
 
-        $this->entityManager->persist($category);
+        if (null === $category)
+        {
+            $category = new Category($name);
+            $this->entityManager->persist($category);
+        }
 
-        $this->categories[$name] = $category;
+        return $category;
     }
 
-    private function createProduct(array $line): void
+    private function createProduct(array $line, Category $category): void
     {
         $date = preg_replace('/\s/', '', $line[5]);
 
@@ -81,10 +85,8 @@ class ParseFileMessageHandler implements MessageHandlerInterface
             (float)$line[3],
             (int)$line[4],
             \DateTimeImmutable::createFromFormat('Y-m-d H:i:s', $date),
-            $this->categories[$line[0]]
+            $category
         );
-
-        $product->setCategory($this->categories[$line[0]]);
 
         $this->entityManager->persist($product);
     }

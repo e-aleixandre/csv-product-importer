@@ -12,5 +12,5 @@ framework:
         routing:
             # Route your messages to the transports
             # 'App\Message\YourMessage': async
-            'App\Messenger\Commands\ParseFileMessage': async
-            'App\Messenger\Commands\UploadCSV': sync
+            'App\Messenger\Commands\ParseFileCommand': async
+            'App\Messenger\Commands\UploadCSVCommand': sync

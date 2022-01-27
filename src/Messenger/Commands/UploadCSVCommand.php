@@ -4,7 +4,7 @@ namespace App\Messenger\Commands;
 
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 
-class UploadCSV
+class UploadCSVCommand
 {
     private UploadedFile $file;
 

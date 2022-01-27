@@ -2,8 +2,7 @@
 
 namespace App\Controller;
 
-use App\Messenger\Commands\UploadCSV;
-use Doctrine\ORM\EntityManagerInterface;
+use App\Messenger\Commands\UploadCSVCommand;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Symfony\Component\HttpFoundation\Request;
@@ -15,13 +14,11 @@ use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 class MainController extends AbstractController
 {
-    private EntityManagerInterface $entityManager;
     private ValidatorInterface $validator;
     private MessageBusInterface $bus;
 
-    public function __construct(EntityManagerInterface $entityManager, MessageBusInterface $bus, ValidatorInterface $validator)
+    public function __construct(MessageBusInterface $bus, ValidatorInterface $validator)
     {
-        $this->entityManager = $entityManager;
         $this->validator = $validator;
         $this->bus = $bus;
     }
@@ -47,8 +44,7 @@ class MainController extends AbstractController
             ]);
         }
 
-        $command = new UploadCSV($inputFile);
-        $this->bus->dispatch($command);
+        $this->bus->dispatch(new UploadCSVCommand($inputFile));
 
         return $this->json([]);
     }

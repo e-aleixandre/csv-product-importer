@@ -4,7 +4,7 @@ namespace App\Messenger\Commands;
 
 use Symfony\Component\Uid\Ulid;
 
-class ParseFileMessage
+class ParseFileCommand
 {
     private Ulid $fileId;
 

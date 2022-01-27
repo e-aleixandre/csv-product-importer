@@ -25,12 +25,6 @@ class Category
      */
     private string $name;
 
-    /**
-     * @ORM\ManyToOne(targetEntity=File::class, inversedBy="categories")
-     * @ORM\JoinColumn(nullable=false)
-     */
-    private File $file;
-
     public function __construct(?string $name)
     {
         $this->id = new Ulid();
@@ -50,18 +44,6 @@ class Category
     public function setName(string $name): self
     {
         $this->name = $name;
-
-        return $this;
-    }
-
-    public function getFile(): ?File
-    {
-        return $this->file;
-    }
-
-    public function setFile(?File $file): self
-    {
-        $this->file = $file;
 
         return $this;
     }
