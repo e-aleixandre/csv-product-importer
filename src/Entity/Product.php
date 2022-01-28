@@ -3,6 +3,8 @@
 namespace App\Entity;
 
 use App\Repository\ProductRepository;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Bridge\Doctrine\IdGenerator\UlidGenerator;
 use Symfony\Component\Uid\Ulid;
@@ -27,16 +29,6 @@ class Product
     private Category $category;
 
     /**
-     * @ORM\Column(type="string", length=255)
-     */
-    private string $name;
-
-    /**
-     * @ORM\Column(type="string", length=255)
-     */
-    private string $description;
-
-    /**
      * @ORM\Column(type="float")
      */
     private float $price;
@@ -51,15 +43,19 @@ class Product
      */
     private ?\DateTimeImmutable $lastBoughtAt;
 
-    public function __construct(string $name, string $description, float $price, int $stock, \DateTimeImmutable $lastBoughtAt, Category $category)
+    /**
+     * @ORM\OneToMany(targetEntity=ProductDetail::class, mappedBy="product", orphanRemoval=true, cascade={"persist"})
+     */
+    private $productDetails;
+
+    public function __construct(float $price, int $stock, \DateTimeImmutable $lastBoughtAt, Category $category)
     {
         $this->id = new Ulid();
-        $this->name = $name;
-        $this->description = $description;
         $this->price = $price;
         $this->stock = $stock;
         $this->lastBoughtAt = $lastBoughtAt;
         $this->category = $category;
+        $this->productDetails = new ArrayCollection();
     }
 
     public function getId(): Ulid
@@ -75,30 +71,6 @@ class Product
     public function setCategory(Category $category): self
     {
         $this->category = $category;
-
-        return $this;
-    }
-
-    public function getName(): string
-    {
-        return $this->name;
-    }
-
-    public function setName(string $name): self
-    {
-        $this->name = $name;
-
-        return $this;
-    }
-
-    public function getDescription(): string
-    {
-        return $this->description;
-    }
-
-    public function setDescription(string $description): self
-    {
-        $this->description = $description;
 
         return $this;
     }
@@ -137,5 +109,20 @@ class Product
         $this->lastBoughtAt = $lastBoughtAt;
 
         return $this;
+    }
+
+    public function addProductDetail(ProductDetail $productDetail): self
+    {
+        if (!$this->productDetails->contains($productDetail)) {
+            $this->productDetails[] = $productDetail;
+            $productDetail->setProduct($this);
+        }
+
+        return $this;
+    }
+
+    public function getProductDetails(): Collection
+    {
+        return $this->productDetails;
     }
 }

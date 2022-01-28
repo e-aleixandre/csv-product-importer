@@ -3,8 +3,11 @@
 namespace App\Repository;
 
 use App\Entity\Product;
+use App\Entity\ProductDetail;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
+use Doctrine\ORM\Query\Expr\Join;
 use Doctrine\Persistence\ManagerRegistry;
+use Symfony\Component\Uid\Ulid;
 
 /**
  * @method Product|null find($id, $lockMode = null, $lockVersion = null)
@@ -17,6 +20,34 @@ class ProductRepository extends ServiceEntityRepository
     public function __construct(ManagerRegistry $registry)
     {
         parent::__construct($registry, Product::class);
+    }
+
+    public function byCategoryIdAndLocale(Ulid $categoryId, string $locale): array
+    {
+        return $this->createQueryBuilder('p')
+            ->addSelect('pd')
+            ->addSelect('c')
+            ->innerJoin('p.productDetails', 'pd')
+            ->leftJoin('p.category', 'c')
+            ->andWhere('p.category = :categoryId')
+            ->andWhere('pd.language.value = :locale')
+            ->setParameter('categoryId', $categoryId->toBinary())
+            ->setParameter('locale', $locale)
+            ->getQuery()
+            ->getArrayResult();
+    }
+
+    public function byLocale(string $locale): array
+    {
+        return $this->createQueryBuilder('p')
+            ->addSelect('pd')
+            ->addSelect('c')
+            ->innerJoin('p.productDetails', 'pd')
+            ->leftJoin('p.category', 'c')
+            ->andWhere('pd.language.value = :locale')
+            ->setParameter('locale', $locale)
+            ->getQuery()
+            ->getArrayResult();
     }
 
     // /**

@@ -14,3 +14,4 @@ framework:
             # 'App\Message\YourMessage': async
             'App\Messenger\Commands\ParseFileCommand': async
             'App\Messenger\Commands\UploadCSVCommand': sync
+            'App\Messenger\Queries\FindProductsByCategoryAndLocaleQuery': sync
